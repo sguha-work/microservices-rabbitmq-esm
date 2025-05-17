@@ -13,8 +13,9 @@ class ConnectRabbitMQ {
     async connect() {
         try {
             console.log(`connecting to ${this.RABBITMQ_URL} and ${this.QUEUE_NAME}`);
+
             const connection = await amqp.connect(this.RABBITMQ_URL);
-            const channel = await connection.createChannel();
+            let channel = await connection.createChannel();
             await channel.assertQueue(this.QUEUE_NAME);
             return channel;
         } catch (error) {
