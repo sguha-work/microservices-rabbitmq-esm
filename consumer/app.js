@@ -8,26 +8,26 @@ import ConnectRabbitMQ from './ConnectRabbitMQ.mjs';
   const connectRabbitMQ = new ConnectRabbitMQ();
 
   const startConsumer = async () => {
+    let channel = null;
     try {
-      let channel = await connectRabbitMQ.setRabbitMQUrl(RABBITMQ_URL).setQueueName(PRODUCER_QUEUE_NAME).connect();
-      if (!channel) throw new Error('Not connected to RabbitMQ');
+      channel = await connectRabbitMQ.setRabbitMQUrl(RABBITMQ_URL).setQueueName(PRODUCER_QUEUE_NAME).connect();
       console.log('Consumer waiting for messages...');
-      channel.consume(PRODUCER_QUEUE_NAME, async (message) => {
-        if (message) {
-          try {
-            const content = JSON.parse(message.content.toString());
-            console.log(`Received message: ${content.text} at ${content.timestamp}`);
-            await channel.ack(message);
-          } catch (error) {
-            console.error('Error processing message:', error);
-            await channel.nack(message);
-          }
-        }
-      });
     } catch (error) {
-      console.error('RabbitMQ connection error:', error);
-      setTimeout(startConsumer, 5000);
+      console.error('Error connecting to RabbitMQ:', error);
+      process.exit(1);
     }
+    channel.consume(PRODUCER_QUEUE_NAME, async (message) => {
+      if (message) {
+        try {
+          const content = JSON.parse(message.content.toString());
+          console.log(`Received message: ${content.text} at ${content.timestamp}`);
+          await channel.ack(message);
+        } catch (error) {
+          console.error('Error processing message:', error);
+          await channel.nack(message);
+        }
+      }
+    });
   };
 
   app.listen(PORT, () => {

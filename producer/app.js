@@ -24,16 +24,16 @@ import ConnectRabbitMQ from './ConnectRabbitMQ.mjs';
     }
   });
 
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(`Producer service running on port ${PORT}`);
     const RABBITMQ_URL = `amqp://${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`;
     const connectRabbitMQ = new ConnectRabbitMQ();
-    const interval = setInterval(async () => {
+    try {
       channel = await connectRabbitMQ.setRabbitMQUrl(RABBITMQ_URL).setQueueName(PRODUCER_QUEUE_NAME).connect();
-      if (channel) {
-        console.log(`Connected to RabbitMQ at ${RABBITMQ_URL} and queue ${PRODUCER_QUEUE_NAME}`);
-        clearInterval(interval);
-      }
-    }, 1000)
+      console.log("Producer connected to RabbitMQ");
+    } catch (error) {
+      console.error('Error connecting to RabbitMQ:', error);
+      process.exit(1);
+    }
   });
 })()
