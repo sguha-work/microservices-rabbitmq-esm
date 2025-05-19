@@ -4,7 +4,6 @@ import ConnectRabbitMQ from './ConnectRabbitMQ.mjs';
   const app = express();
   app.use(express.json());
   const PORT = process.env.PORT || 3001;
-  const RABBITMQ_URL = `amqp://${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`;
   const PRODUCER_QUEUE_NAME = 'producer_messages'; // will be used to consume message from producer
   const CONSUMER_QUEUE_NAME = 'consumer_messages';// will be used to send message from consumer to producer
   let consumerChannel1 = null;
